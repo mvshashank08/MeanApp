@@ -1,0 +1,118 @@
+<html lang="en" ng-app="railway">
+<head>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<!--Let browser know website is optimized for mobile-->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script><!-- load angular -->
+
+</head>
+	
+	<script>
+    	var railway = angular.module('railway', []);
+
+		railway.controller('trainappcontrol', function($scope, $http){
+			$http.get('trains3.json').success(function(data){
+				$scope.trains = data;
+				console.log(data);
+			}).error(function(data){
+				console.log('Error: '+data);
+			});
+			$scope.getDetails = function(train){
+				$scope.train = train
+			}
+			$scope.clearStations = function(){
+				$scope.train = null;
+			}
+		});
+    </script>
+<body ng-controller="trainappcontrol">
+	<h1 class="bg-primary text-center" style="padding:10px">Railway Enquiry</h1>
+	<div class="container">
+		
+		<input style="margin-bottom:10px" type="search" class="form-control" placeholder="Search trains here..." ng-model="query">
+
+
+		
+
+		<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<div class="page-header">
+							<h3>{{train.trainName}} <small>({{train.trainNumber}})</small></h3>
+						</div>
+						<h4>
+							<span class="label label-primary">Source</span> {{train.source}} &nbsp;&nbsp;&nbsp;&nbsp;
+							<span class="label label-success">Destination</span> 
+							{{train.destination}}
+						</h4>
+					</div>
+					<div class="modal-body pre-scrollable">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>Station</th>
+									<th>Arrives</th>
+									<th>Departs</th>
+									<th>Distance Travelled</th>
+									<th>Day</th>
+									<th>Route</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="key in train.station">
+									<td>
+										{{key.stationName}} <span class="text-primary" style="font-weight:bold">{{key.stationCode}}</span>
+									</td>
+									<td ng->{{key.arrival}}</td>
+									<td>{{key.departure}}</td>
+									<td>{{key.distanceTravelled}}</td>
+									<td>{{key.day}}</td>
+									<td>{{key.route}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clearStations()">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+		<table class="table table-hover">
+			<thead>
+			  <tr class="info">
+				  <th>Train No</th>
+				  <th>Train Name</th>
+				  <th>Source</th>
+				  <th>Destination</th>
+				  <th></th>
+			  </tr>
+			</thead>
+			<tbody >
+			  <tr ng-repeat="train in trains | filter:query | orderBy:'trainName'">   
+				<td>{{train.trainNumber}}</td>
+				<td>{{train.trainName}}</td>
+				<td>{{train.source}}</td>
+				<td>{{train.destination}}</td>
+				<td>
+					<button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg" ng-click="getDetails(train)">Show</button>
+				</td>
+			  </tr>	
+			</tbody>
+		</table>
+	</div>
+		
+		
+</body>
+	
+</html>
+        
