@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myAdmin">
+<head>
+	<meta charset="UTF-8">
+	<title>Administrator</title>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<!--Let browser know website is optimized for mobile-->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script><!-- load angular -->
+    <script>
+    	myAdmin = angular.module("myAdmin", []);
+
+    	myAdmin.controller('myAdminCtrl', function($scope, $http){
+    		$http.get('orders.json').success(function(data){
+    			$scope.orders = data;
+    			console.log(data);
+    		}).error(function(data){
+    			console.log("Error: "+data);
+    		});
+    		function getCost(costString){
+				
+				costString = costString.replace(" INR", "");
+				costString = costString.replace(",", "");
+				var cost = parseInt(costString);
+				return (cost);
+			}
+			$scope.totalCost = function(books){
+				var totalCost = 0;
+				for (var i = 0; i < books.length; i++) {
+					
+					//var cost = parseInt($scope.cartBooks[i].Price.replace(" INR", ""));
+					var cost = getCost(books[i].Price);
+					//console.log(cost);
+					totalCost += cost;
+				}
+				return(totalCost);
+			}
+			$scope.finishOrder = function(order){
+				var i = $scope.orders.indexOf(order);
+				$scope.orders.splice(i, 1);
+			}
+			$scope.saveOrder = function(){
+				$http.post('/saveOrder', $scope.orders);
+				alert("Orders are saved");
+			}
+    	});
+    </script>
+</head>
+<body ng-controller="myAdminCtrl">
+	<div class="container">
+		<div class="well text-center">
+			<h1>
+				Welcome Admin! 
+				<button class="btn btn-success pull-right btn-lg" ng-click="saveOrder()">Save</button> 
+			</h1>
+		</div>
+		<div>
+			<div class="panel panel-default" ng-repeat="order in orders">
+				<div class="panel-body row">
+					<div class="col-sm-6">
+						<div class="page-header"><h1>Customer</h1></div>
+						<table class="table table-bordered">
+									<tr>
+										<th>Name</th>
+										<td>{{order.user.name}}</td>
+									</tr>
+									<tr>
+										<th>Email</th>
+										<td>{{order.user.email}}</td>
+									</tr>
+									<tr>
+										<th>Phone</th>
+										<td>{{order.user.phone}}</td>
+									</tr>
+									<tr>
+										<th>Address</th>
+										<td>{{order.user.address}}</td>
+									</tr>
+								</table>
+					</div>
+					<div class="col-sm-6">
+						<div class="page-header"><h1>Order</h1></div>
+						<table class="table table-hover table-bordered">
+									<tr>
+										<th>Title</th>
+										<th>Author</th>
+										<th>ISBN</th>
+										<th>Price</th>
+									</tr>
+									<tr ng-repeat="book in order.order">
+										<td>{{book.Title[0]}}</td>
+										<td>{{book.Author[0]}}</td>
+										<td>{{book.ISBN}}</td>
+										<td>{{book.Price}}</td>
+									</tr>
+									<tr>
+										<td colspan="3"><b class="pull-right">Total</b></td>
+										<td>
+											<b>{{totalCost(order.order) | currency:"&#8377;"}}</b>
+										</td>
+									</tr>
+								</table>
+					</div>
+										
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<button type="button" class="btn btn-danger btn-lg btn-block" ng-click="finishOrder(order)">Finish Order</button>
+					</div>	
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
